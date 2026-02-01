@@ -1,0 +1,2 @@
+rootProject.name = 'battlejar-client'
+include 'api', 'client', 'math'
