@@ -1,0 +1,22 @@
+[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+eclipse.project.name = appName + '-api'
+
+java {
+  toolchain {
+    languageVersion = JavaLanguageVersion.of(25)
+  }
+}
+
+dependencies {
+  implementation "com.fasterxml.jackson.core:jackson-annotations:$jacksonVersion"
+
+  testImplementation(platform("org.junit:junit-bom:$junitVersion"))
+  testImplementation "org.junit.jupiter:junit-jupiter-api"
+  testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
+  testRuntimeOnly "org.junit.platform:junit-platform-launcher"
+  testImplementation "org.assertj:assertj-core:$assertjVersion"
+}
+
+test {
+  useJUnitPlatform()
+}

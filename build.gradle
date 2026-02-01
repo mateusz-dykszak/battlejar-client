@@ -1,0 +1,58 @@
+plugins {
+  id 'maven-publish'
+}
+
+allprojects {
+  apply plugin: 'eclipse'
+  apply plugin: 'idea'
+}
+
+configure(subprojects) {
+  apply plugin: 'java-library'
+  apply plugin: 'maven-publish'
+
+  compileJava {
+    options.encoding = 'UTF-8'
+  }
+  compileTestJava {
+    options.encoding = 'UTF-8'
+  }
+}
+
+subprojects {
+  ext.appName = 'battlejar-client'
+
+  repositories {
+    mavenCentral()
+    mavenLocal()
+  }
+
+  java {
+    toolchain {
+      languageVersion = JavaLanguageVersion.of(23)
+    }
+  }
+
+  afterEvaluate {
+    version = rootProject.version
+    tasks.named('jar', Jar) {
+      archiveFileName.set("${appName}-${project.name}-${project.version}.jar")
+    }
+    publishing {
+      publications {
+        maven(MavenPublication) {
+          from components.java
+          groupId = rootProject.group
+          artifactId = project.name
+          version = project.version
+        }
+      }
+      repositories {
+        mavenLocal()
+      }
+    }
+  }
+}
+
+group = 'it.battlejar'
+version = '0.1.0'

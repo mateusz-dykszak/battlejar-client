@@ -1,0 +1,33 @@
+[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+eclipse.project.name = appName + '-client'
+
+java {
+  toolchain {
+    languageVersion = JavaLanguageVersion.of(25)
+  }
+}
+
+dependencies {
+  implementation project(':api')
+
+  compileOnly "org.projectlombok:lombok:$lombokVersion"
+  annotationProcessor "org.projectlombok:lombok:$lombokVersion"
+
+  implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
+  implementation "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion"
+
+  implementation "org.apache.logging.log4j:log4j-api:$log4jVersion"
+  implementation "org.apache.logging.log4j:log4j-core:$log4jVersion"
+  implementation "org.apache.logging.log4j:log4j-slf4j-impl:$log4jVersion"
+
+  testImplementation(platform("org.junit:junit-bom:$junitVersion"))
+  testImplementation "org.junit.jupiter:junit-jupiter-api"
+  testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
+  testRuntimeOnly "org.junit.platform:junit-platform-launcher"
+  testImplementation "org.assertj:assertj-core:$assertjVersion"
+  testImplementation "org.mockito:mockito-core:$mockitoVersion"
+}
+
+test {
+  useJUnitPlatform()
+}

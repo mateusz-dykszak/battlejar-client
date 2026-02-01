@@ -1,0 +1,8 @@
+[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+eclipse.project.name = appName + '-math'
+
+java {
+  toolchain {
+    languageVersion = JavaLanguageVersion.of(25)
+  }
+}
