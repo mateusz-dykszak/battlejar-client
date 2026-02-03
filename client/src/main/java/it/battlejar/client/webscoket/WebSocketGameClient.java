@@ -42,7 +42,8 @@ public class WebSocketGameClient implements AutoCloseable {
     private WebSocket webSocket;
     private HttpClient httpClient;
 
-    private volatile Entities lastEntities;
+    private final Semaphore lastEntitiesUpdated = new Semaphore(1);
+    private Entities lastEntities;
     private volatile boolean running = true;
     private volatile boolean closing = false;
 
@@ -154,13 +155,24 @@ public class WebSocketGameClient implements AutoCloseable {
      * @param entitiesProcessor the function to process the received entities
      */
     public void processEntities(Function<Entities, Boolean> entitiesProcessor) {
-        while (running) {
-            while (lastEntities == null) {
-                Thread.onSpinWait();
+        Entities toProcess = null;
+        try {
+            while (running) {
+                if (lastEntitiesUpdated.tryAcquire(1, TimeUnit.SECONDS)) { // we use semaphore only to block waiting for an update
+                    synchronized (lastEntitiesUpdated) { // we use synchronisation to enforce atomicity
+                        if (lastEntities != null) {
+                            toProcess = lastEntities;
+                            lastEntities = null;
+                        }
+                    }
+                    if (toProcess != null) {
+                        running = entitiesProcessor.apply(toProcess);
+                        toProcess = null;
+                    }
+                }
             }
-            var entities = lastEntities;
-            lastEntities = null;
-            running = entitiesProcessor.apply(entities);
+        } catch (InterruptedException e) {
+            currentThread().interrupt();
         }
     }
 
@@ -210,8 +222,11 @@ public class WebSocketGameClient implements AutoCloseable {
                         }
                     }
                     if (toProcess != null) {
-                        log.debug("[{}] Processing entities: {}, {} skipped", gameId, toProcess, size);
-                        lastEntities = toProcess;
+                        log.debug("[{}] Processing entities: {}, {} skipped", gameId, toProcess, size - 1);
+                        synchronized (lastEntitiesUpdated) {
+                            lastEntities = toProcess;
+                        }
+                        lastEntitiesUpdated.release(); // we use semaphore only to block waiting for an update
                     }
                 }
             } catch (InterruptedException e) {
