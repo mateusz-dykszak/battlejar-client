@@ -5,9 +5,9 @@ This document provides essential information for AI coding agents working on the
 ## Project Overview
 
 BattleJar Client is a project built with Java 25. The project uses a multi-module Gradle structure with the following modules:
-- `api`: API definitions
-- `client`: Client implementation
-- `math`: Math utilities (including Vector2)
+- `api`: Domain models (DTOs like Entities, Ping, Pong, WebSocketMessage) and serialization utilities
+- `client`: Client implementation (HTTP and WebSocket communication)
+- `math`: Math utilities (including Vector2, copied from libGDX)
 
 ## Setup Commands
 
@@ -104,7 +104,7 @@ java -version  # Should be Java 25
 - **Package Structure**:
   - Main code: `client/src/main/java/it/battlejar/client/`
   - Test code: `client/src/test/java/it/battlejar/client/`
-  - Packages organized by functionality (model, view, steering, logic, etc.)
+  - Packages organized by functionality (http, websocket, serialization)
 - **Null Checks**: Use `Objects.requireNonNull(x)` instead of `if (x == null) throw new NullPointerException(...)`
   - Prefer static import: `requireNonNull(param, "param cannot be null")`
   - Avoid: `if (param == null) throw new NullPointerException("param cannot be null")`
@@ -118,17 +118,16 @@ java -version  # Should be Java 25
 
 ### Lombok Usage
 - Project uses Lombok to reduce boilerplate
-- Common annotations: `@Log4j2`, `@Data`, `@RequiredArgsConstructor`, `@Builder`
+- Common annotations: `@Slf4j`, `@Data`, `@RequiredArgsConstructor`, `@Builder`
 - Use Lombok annotations instead of writing boilerplate code manually
 
 ### Logging
-- Use Log4j2 via Lombok's `@Log4j2` annotation
+- Use SLF4J via Lombok's `@Slf4j` annotation
 - Example: `log.info("Message with {}", variable)`
 - For test debugging: `System.out.println("[DEBUG_LOG] Your message")`
 
 ### Framework Conventions
 - Use `Vector2` for 2D positions and directions (from `math` module)
-- Use `Color` for identification and state
 
 ## Project Configuration
 
