@@ -20,7 +20,7 @@ configure(subprojects) {
 }
 
 subprojects {
-  ext.appName = 'battlejar-client'
+  ext.appName = 'battlejar-client-root'
 
   repositories {
     mavenCentral()
@@ -29,26 +29,40 @@ subprojects {
 
   java {
     toolchain {
-      languageVersion = JavaLanguageVersion.of(23)
+      languageVersion = JavaLanguageVersion.of(25)
     }
   }
 
   afterEvaluate {
     version = rootProject.version
     tasks.named('jar', Jar) {
-      archiveFileName.set("${appName}-${project.name}-${project.version}.jar")
+      archiveFileName.set("battlejar-${project.name}-${project.version}.jar")
     }
     publishing {
       publications {
         maven(MavenPublication) {
           from components.java
           groupId = rootProject.group
-          artifactId = project.name
+          artifactId = "battlejar-${project.name}"
+          version = project.version
+        }
+        gpr(MavenPublication) {
+          from(components.java)
+          groupId = rootProject.group
+          artifactId = "battlejar-${project.name}"
           version = project.version
         }
       }
       repositories {
         mavenLocal()
+        maven {
+          name = "GitHubPackages"
+          url = uri("https://maven.pkg.github.com/mateusz-dykszak/battlejar-client")
+          credentials {
+            username = project.findProperty("gpr.user") ?: System.getenv("USERNAME")
+            password = project.findProperty("gpr.key") ?: System.getenv("TOKEN")
+          }
+        }
       }
     }
   }
