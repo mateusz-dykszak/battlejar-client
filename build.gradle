@@ -46,12 +46,6 @@ subprojects {
           artifactId = "battlejar-${project.name}"
           version = project.version
         }
-        gpr(MavenPublication) {
-          from(components.java)
-          groupId = rootProject.group
-          artifactId = "battlejar-${project.name}"
-          version = project.version
-        }
       }
       repositories {
         mavenLocal()
@@ -65,7 +59,21 @@ subprojects {
         }
       }
     }
+
+    tasks.register('publishToGithub') {
+      description = "Publishes all publications to GitHub Packages."
+      group = "publishing"
+      dependsOn tasks.withType(PublishToMavenRepository).matching {
+        it.repository.name == 'GitHubPackages'
+      }
+    }
   }
+}
+
+tasks.register('publishToGithub') {
+  description = "Publishes all publications from all subprojects to GitHub Packages."
+  group = "publishing"
+  dependsOn subprojects.collect { it.tasks.withType(PublishToMavenRepository).matching { it.repository.name == 'GitHubPackages' } }
 }
 
 group = 'it.battlejar'
