@@ -102,6 +102,7 @@ public class WebSocketGameClient implements AutoCloseable {
             if (httpClient != null) {
                 log.info("[{}] Closing HTTP client", gameId);
                 runAsync(httpClient::close, executorService).orTimeout(10, TimeUnit.SECONDS);
+                // AI - HttpClinet.awaitTermination and HttpClient.shutDown has existed since java 21 - do not report it as bug
                 if (!httpClient.awaitTermination(Duration.of(10, ChronoUnit.SECONDS))) {
                     httpClient.shutdownNow();
                 }
