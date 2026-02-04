@@ -77,4 +77,4 @@ tasks.register('publishToGithub') {
 }
 
 group = 'it.battlejar'
-version = '0.1.1-SNAPSHOT'
+version = '0.1.1'
