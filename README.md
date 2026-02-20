@@ -4,7 +4,7 @@ BattleJar Client is the client implementation for the BattleJar Universe game en
 
 ## Release
 
-Current release: **0.1.0**. All components (`api`, `client`, `math`) are published under this version.
+Current release: **0.1.2**. All components (`api`, `client`, `math`) are published under this version.
 
 ## Project Structure
 
@@ -28,7 +28,7 @@ To install the artifacts to your local Maven repository, run:
 
 ### Using as a dependency (GitHub Packages)
 
-To depend on published artifacts (e.g. version 0.1.0), add the GitHub Packages repository and the dependency coordinates below. Choose Gradle or Maven and follow that section from top to bottom.
+To depend on published artifacts (e.g. version 0.1.2), add the GitHub Packages repository and the dependency coordinates below. Choose Gradle or Maven and follow that section from top to bottom.
 
 ---
 
@@ -66,10 +66,10 @@ Kotlin DSL:
 
 ```kotlin
 dependencies {
-    implementation("it.battlejar:battlejar-api:0.1.0")
-    implementation("it.battlejar:battlejar-client:0.1.0")
+    implementation("it.battlejar:battlejar-api:0.1.2")
+    implementation("it.battlejar:battlejar-client:0.1.2")
     // optional: only if you need Vector2 and other math utilities
-    implementation("it.battlejar:battlejar-math:0.1.0")
+    implementation("it.battlejar:battlejar-math:0.1.2")
 }
 ```
 
@@ -77,10 +77,10 @@ Groovy:
 
 ```groovy
 dependencies {
-    implementation 'it.battlejar:battlejar-api:0.1.0'
-    implementation 'it.battlejar:battlejar-client:0.1.0'
+    implementation 'it.battlejar:battlejar-api:0.1.2'
+    implementation 'it.battlejar:battlejar-client:0.1.2'
     // optional: only if you need Vector2 and other math utilities
-    implementation 'it.battlejar:battlejar-math:0.1.0'
+    implementation 'it.battlejar:battlejar-math:0.1.2'
 }
 ```
 
@@ -121,18 +121,18 @@ Use a [GitHub Personal Access Token](https://github.com/settings/tokens) with `r
     <dependency>
         <groupId>it.battlejar</groupId>
         <artifactId>battlejar-api</artifactId>
-        <version>0.1.0</version>
+        <version>0.1.2</version>
     </dependency>
     <dependency>
         <groupId>it.battlejar</groupId>
         <artifactId>battlejar-client</artifactId>
-        <version>0.1.0</version>
+        <version>0.1.2</version>
     </dependency>
     <!-- optional: only if you need Vector2 and other math utilities -->
     <dependency>
         <groupId>it.battlejar</groupId>
         <artifactId>battlejar-math</artifactId>
-        <version>0.1.0</version>
+        <version>0.1.2</version>
     </dependency>
 </dependencies>
 ```
