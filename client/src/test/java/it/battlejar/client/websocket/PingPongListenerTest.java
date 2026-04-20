@@ -1,4 +1,4 @@
-package it.battlejar.client.webscoket;
+package it.battlejar.client.websocket;
 
 import org.junit.jupiter.api.Test;
 

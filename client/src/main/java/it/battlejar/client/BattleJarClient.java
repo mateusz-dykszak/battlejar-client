@@ -5,8 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import it.battlejar.api.*;
 import it.battlejar.client.http.HttpGameClient;
-import it.battlejar.client.webscoket.EntityJacksonModule;
-import it.battlejar.client.webscoket.WebSocketGameClient;
+import it.battlejar.client.websocket.EntityJacksonModule;
+import it.battlejar.client.websocket.WebSocketGameClient;
 import lombok.Synchronized;
 import lombok.extern.slf4j.Slf4j;
 
