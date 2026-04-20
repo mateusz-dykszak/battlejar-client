@@ -1,4 +1,4 @@
-package it.battlejar.client.webscoket;
+package it.battlejar.client.websocket;
 
 import lombok.extern.slf4j.Slf4j;
 
