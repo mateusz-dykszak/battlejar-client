@@ -4,7 +4,7 @@ BattleJar Client is the client implementation for the BattleJar Universe game en
 
 ## Release
 
-Current release: **0.1.2**. All components (`api`, `client`, `math`) are published under this version.
+Current release: **0.2.0**. All components (`api`, `client`, `math`) are published under this version.
 
 ## Project Structure
 
