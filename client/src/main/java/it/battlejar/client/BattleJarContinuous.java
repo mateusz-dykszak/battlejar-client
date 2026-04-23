@@ -15,9 +15,10 @@ import static java.util.Objects.requireNonNull;
  * Usage:
  * <pre>
  * Player initialPlayer = new Player(...);
- * try(ExecutorService executorService = ...) {
- *   BattleJarContinuous continuousClient = new BattleJarContinuous(serverUrl, initialPlayer, Commander::new, executorService);
- *   continuousClient.run();
+ * try(ExecutorService executor = ...) {
+ *   var continuous = new BattleJarContinuous(serverUrl, initialPlayer, MyCommander::new, executor);       // no limit
+ *   // or: new BattleJarContinuous(..., executor, 10) to stop after 10 completed games
+ *   continuous.run();
  * };
  * </pre>
  */
@@ -27,10 +28,16 @@ public class BattleJarContinuous {
     private final String serverUrl;
     private final ExecutorService executorService;
     private final Supplier<Commander> commanderFactory;
-    private Player player;
+    private final Player player;
+
+    /**
+     * Maximum number of games to play; 0 or less means no limit.
+     */
+    private final int maxGames;
 
     /**
      * Creates a new continuous client with a callback for when a new game starts.
+     * There is no limit on the number of games.
      *
      * @param serverUrl        the base URL of the server
      * @param player           the initial player configuration
@@ -38,10 +45,34 @@ public class BattleJarContinuous {
      * @param commanderFactory supplier that creates a new commander instance for each game
      */
     public BattleJarContinuous(String serverUrl, Player player, Supplier<Commander> commanderFactory, ExecutorService executorService) {
+        this(serverUrl, player, commanderFactory, executorService, 0);
+    }
+
+    /**
+     * Creates a new continuous client with a limit on how many games to play.
+     *
+     * @param serverUrl        the base URL of the server
+     * @param player           the initial player configuration
+     * @param executorService  the executor service for running background tasks (currently unused, reserved for future use)
+     * @param commanderFactory supplier that creates a new commander instance for each game
+     * @param maxGames         stop after these many completed games; 0 or less for no limit
+     */
+    public BattleJarContinuous(
+        String serverUrl,
+        Player player,
+        Supplier<Commander> commanderFactory,
+        ExecutorService executorService,
+        int maxGames
+    ) {
         this.serverUrl = serverUrl;
         this.player = requireNonNull(player, "Initial player cannot be null");
         this.executorService = executorService;
         this.commanderFactory = requireNonNull(commanderFactory, "Commander supplier cannot be null");
+        this.maxGames = maxGames;
+    }
+
+    static boolean isGameLimitReached(int gamesCompleted, int maxGames) {
+        return maxGames > 0 && gamesCompleted >= maxGames;
     }
 
     /**
@@ -51,21 +82,35 @@ public class BattleJarContinuous {
      */
     public void run() {
         log.info("Starting continuous game loop");
-        log.info("Server URL: {}", serverUrl);
-        log.info("Player Color: {}", player.color());
+        log.info("Server URL: {}", this.serverUrl);
+        log.info("Player Color: {}", this.player.color());
+        if (maxGames > 0) {
+            log.info("Game limit: {} (will stop after that many completed games)", maxGames);
+        } else {
+            log.info("No game limit (runs until interrupted)");
+        }
 
         boolean running = true;
+        int gamesCompleted = 0;
 
+        var player = this.player;
         while (running) {
             log.info("Starting new game session...");
             try {
                 Commander commander = commanderFactory.get();
                 try (BattleJarClient client = new BattleJarClient(serverUrl, commander, executorService)) {
                     log.debug("Registering player with data: {}", player);
-                    player = client.register(player);
+                    var registeredPlayer = client.register(player);
                     log.debug("Registration completed with player data: {}", player);
                     client.process();
-                    log.info("Game session ended. Re-registering...");
+                    player = new Player(registeredPlayer.id(), registeredPlayer.color(), this.player.username());
+                    gamesCompleted++;
+                    if (isGameLimitReached(gamesCompleted, maxGames)) {
+                        log.info("Completed {} game(s) (limit: {}). Stopping — client closed, commander finished for this session.", gamesCompleted, maxGames);
+                        running = false;
+                    } else {
+                        log.info("Game session ended. Re-registering... ({} completed so far)", gamesCompleted);
+                    }
                 }
             } catch (Throwable e) {
                 log.error("Error in game session: {}. Retrying in 5 seconds...", e.getMessage());

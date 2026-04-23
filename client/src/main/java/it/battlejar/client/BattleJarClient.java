@@ -118,7 +118,7 @@ public class BattleJarClient implements AutoCloseable {
                         if (response.color() == null) {
                             throw new IllegalStateException("Server did not return a color in registration response");
                         }
-                        log.info("[{}] Registration successful - assigned color: {}", gameId, response.color());
+                        log.info("[{}] Registration successful - player: {}", gameId, this.player);
 
                         // Notify commander of registration and provide order sender
                         commander.process(response);
