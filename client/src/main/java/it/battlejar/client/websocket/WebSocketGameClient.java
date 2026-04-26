@@ -243,7 +243,7 @@ public class WebSocketGameClient implements AutoCloseable {
         log.debug("[{}] Send text attempt: {}", gameId, text);
         if (webSocket == null) {
             log.error("[{}] WebSocket is not connected - connect before sending orders...", gameId);
-        } else if (webSocket.isOutputClosed()) {
+        } else if (webSocket.isOutputClosed() || webSocket.isInputClosed()) {
             log.warn("[{}] WebSocket - output is closed", gameId);
             close();
         } else {
