@@ -10,8 +10,17 @@ import it.battlejar.client.websocket.WebSocketGameClient;
 import lombok.Synchronized;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import static java.lang.Thread.currentThread;
 import static java.util.concurrent.Executors.newVirtualThreadPerTaskExecutor;
@@ -31,6 +40,7 @@ import static java.util.concurrent.Executors.newVirtualThreadPerTaskExecutor;
 @Slf4j
 public class BattleJarClient implements AutoCloseable {
 
+    public static final String BATTLEJAR_HISTORY_DIR = "BATTLEJAR_HISTORY_DIR";
     private final ObjectMapper objectMapper = new ObjectMapper()
         .registerModule(new JavaTimeModule())
         .registerModule(new EntityJacksonModule());
@@ -165,6 +175,8 @@ public class BattleJarClient implements AutoCloseable {
             webSocketGameClient.processOrders();
             log.info("[{}] Stopped sending orders. Stopping processing entities", gameId);
         }
+
+        downloadAndStoreHistoryIfAvailable();
     }
 
     private boolean entitiesProcessor(Entities entities) {
@@ -178,6 +190,85 @@ public class BattleJarClient implements AutoCloseable {
         }
         log.debug("[{}] Processing {} entities for commander", gameId, entities.entities().size());
         return commander.process(entities);
+    }
+
+    private void downloadAndStoreHistoryIfAvailable() {
+        Optional<Path> outDirOpt = resolveHistoryOutputDirectory();
+        if (outDirOpt.isEmpty()) {
+            return;
+        }
+        Path outDir = outDirOpt.orElseThrow();
+        String path = "/history?gameId=" + gameId;
+        int attempts = 0;
+        try {
+            byte[] zipBytes;
+            do {
+                zipBytes = httpGameClient.getBytes(path);
+                if (zipBytes.length == 0) {
+                    Thread.sleep(2000);
+                }
+            } while (zipBytes.length == 0 && attempts++ < 100);
+            if (zipBytes.length == 0) {
+                log.warn("[{}] History download returned empty body", gameId);
+                return;
+            }
+            unzip(zipBytes, outDir);
+            log.info("[{}] Saved history to {}", gameId, outDir.toAbsolutePath());
+        } catch (Exception e) {
+            log.warn("[{}] Failed to download or save history", gameId, e);
+        }
+    }
+
+    /**
+     * If {@code BATTLEJAR_HISTORY_DIR} is set and that directory can be created and is writable, returns that path
+     * (history files are written there directly, not under a per-game subfolder). Otherwise empty.
+     */
+    private Optional<Path> resolveHistoryOutputDirectory() {
+        if (gameId == null) {
+            return Optional.empty();
+        }
+        String dirEnv = System.getenv(BATTLEJAR_HISTORY_DIR);
+        if (dirEnv == null || dirEnv.isBlank()) {
+            return Optional.empty();
+        }
+        final Path base;
+        try {
+            base = Path.of(dirEnv.trim()).toAbsolutePath().normalize();
+        } catch (Exception e) {
+            log.debug("[{}] {} is not a valid path: {}", gameId, BATTLEJAR_HISTORY_DIR, e.getMessage());
+            return Optional.empty();
+        }
+        try {
+            Files.createDirectories(base);
+        } catch (IOException e) {
+            log.debug("[{}] Cannot create history directory {}: {}", gameId, base, e.getMessage());
+            return Optional.empty();
+        }
+        if (!Files.isDirectory(base) || !Files.isWritable(base)) {
+            log.debug("[{}] History directory is missing, not a directory, or not writable: {}", gameId, base);
+            return Optional.empty();
+        }
+        return Optional.of(base);
+    }
+
+    private static void unzip(byte[] zipBytes, Path outDir) throws IOException {
+        try (InputStream in = new ByteArrayInputStream(zipBytes);
+             ZipInputStream zis = new ZipInputStream(in)) {
+            ZipEntry entry;
+            while ((entry = zis.getNextEntry()) != null) {
+                if (entry.isDirectory()) {
+                    zis.closeEntry();
+                    continue;
+                }
+                Path target = outDir.resolve(entry.getName()).normalize();
+                if (!target.startsWith(outDir)) {
+                    throw new IOException("Zip entry resolves outside target dir: " + entry.getName());
+                }
+                Files.createDirectories(target.getParent());
+                Files.copy(zis, target, StandardCopyOption.REPLACE_EXISTING);
+                zis.closeEntry();
+            }
+        }
     }
 
     /**

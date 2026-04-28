@@ -104,6 +104,37 @@ public class HttpGameClient {
         }
     }
 
+    /**
+     * Sends a GET request and returns response body as bytes (for files).
+     *
+     * @param path the path to send the request to
+     * @return the response body bytes
+     * @throws HttpError on I/O failure or on HTTP error status (4xx/5xx)
+     */
+    public byte[] getBytes(String path) {
+        try {
+            URL url = URI.create(baseUrl + path).toURL();
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("GET");
+            connection.setRequestProperty("Accept", "*/*");
+
+            int responseCode = connection.getResponseCode();
+            if (responseCode >= 200 && responseCode < 300) {
+                try (InputStream is = connection.getInputStream()) {
+                    return is.readAllBytes();
+                }
+            }
+            HttpResponse error = readErrorResponse(connection);
+            String body = error.body();
+            String msg = "Failed to send request to " + path + ": HTTP " + responseCode
+                + (body != null && !body.isBlank() ? " - " + body : "");
+            throw new HttpError(msg, responseCode);
+        } catch (IOException e) {
+            log.error("[{}] Failed to send GET request to {}", gameId, path, e);
+            throw new HttpError("Failed to communicate with server: " + e.getMessage(), 0);
+        }
+    }
+
     private HttpResponse readResponse(String path, HttpURLConnection connection) throws IOException {
         int responseCode = connection.getResponseCode();
         if (responseCode >= 200 && responseCode < 300) {
