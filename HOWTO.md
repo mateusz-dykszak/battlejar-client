@@ -30,6 +30,7 @@ Append `?debug=true` to the URL for extra statistics and debug info.
 12. [Example Commander](#12-example-commander)
 13. [Running Your Commander](#13-running-your-commander)
 14. [Quick Reference](#14-quick-reference)
+15. [Game History and Testing](#15-game-history-and-testing)
 
 ---
 
@@ -618,6 +619,19 @@ private float distance(Entity a, Entity b) {
     return (float) Math.sqrt(dx * dx + dy * dy);
 }
 ```
+
+---
+
+## 15. Game History and Testing
+
+When you integrate against the stack with **`BattleJarClient`**, you can capture replays automatically:
+
+1. Export **`BATTLEJAR_HISTORY_DIR`** in the process environment — point it to a directory where the JVM may write files.
+2. Run your commander (`register` → `process` as usual). After the socket closes at end of match, the client retries the **`/history`** download and unzips the archive into **that directory** (not per-game subfolders). Nothing is fetched if the variable is omitted.
+
+Each replay follows the **`GameRecord`** model: **`Player`** list plus **`Frame`** lines with **`Instant`**, **`Entity`** payloads, and concurrent **`Order`** traces. **`GameRecordJsonlCodec.deserialize(String)`** turns a `.jsonl` file body back into **`GameRecord`**.
+
+That pathway is intentionally thin: offline tests can **`deserialize`** captured JSONL fixtures and validate decision code without the network. See **`GameRecordJsonlCodec`** in **`it.battlejar.api.serialization`** for the wire format expectations.
 
 ---
 
