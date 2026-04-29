@@ -58,6 +58,8 @@ Packages. See the
 [client README](https://github.com/mateusz-dykszak/battlejar-client#using-as-a-dependency-github-packages)
 for full repository setup and credentials.
 
+Set `clientVersion` to match the library version you depend on—for example **`0.2.1`** in Gradle (`gradle.properties` as `clientVersion=0.2.1`) or as a Maven `<property>` bound to `${clientVersion}`.
+
 ### Gradle (Groovy)
 
 ```groovy
