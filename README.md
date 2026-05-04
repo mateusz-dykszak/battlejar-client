@@ -4,7 +4,7 @@ BattleJar Client is the client implementation for the BattleJar Universe game en
 
 ## Release
 
-Current published version: **0.2.1** (GitHub Packages). The repository may track a newer **0.2.2-SNAPSHOT** between releases; dependency examples below use **0.2.1** unless you deliberately depend on snapshots from `mavenLocal()`.
+Current published version: **0.2.2** (GitHub Packages). The repository may track a newer **0.2.3-SNAPSHOT** between releases; dependency examples below use **0.2.2** unless you deliberately depend on snapshots from `mavenLocal()`.
 
 ## Project Structure
 
@@ -36,7 +36,7 @@ To install the artifacts to your local Maven repository, run:
 
 ### Using as a dependency (GitHub Packages)
 
-To depend on published artifacts (replace the version with the tag you target, e.g. **0.2.1**), add the GitHub Packages repository and the dependency coordinates below. Choose Gradle or Maven and follow that section from top to bottom.
+To depend on published artifacts (replace the version with the tag you target, e.g. **0.2.2**), add the GitHub Packages repository and the dependency coordinates below. Choose Gradle or Maven and follow that section from top to bottom.
 
 ---
 
@@ -74,10 +74,10 @@ Kotlin DSL:
 
 ```kotlin
 dependencies {
-    implementation("it.battlejar:battlejar-api:0.2.1")
-    implementation("it.battlejar:battlejar-client:0.2.1")
+    implementation("it.battlejar:battlejar-api:0.2.2")
+    implementation("it.battlejar:battlejar-client:0.2.2")
     // optional: only if you need Vector2 and other math utilities
-    implementation("it.battlejar:battlejar-math:0.2.1")
+    implementation("it.battlejar:battlejar-math:0.2.2")
 }
 ```
 
@@ -85,10 +85,10 @@ Groovy:
 
 ```groovy
 dependencies {
-    implementation 'it.battlejar:battlejar-api:0.2.1'
-    implementation 'it.battlejar:battlejar-client:0.2.1'
+    implementation 'it.battlejar:battlejar-api:0.2.2'
+    implementation 'it.battlejar:battlejar-client:0.2.2'
     // optional: only if you need Vector2 and other math utilities
-    implementation 'it.battlejar:battlejar-math:0.2.1'
+    implementation 'it.battlejar:battlejar-math:0.2.2'
 }
 ```
 
@@ -129,18 +129,18 @@ Use a [GitHub Personal Access Token](https://github.com/settings/tokens) with `r
     <dependency>
         <groupId>it.battlejar</groupId>
         <artifactId>battlejar-api</artifactId>
-        <version>0.2.1</version>
+        <version>0.2.2</version>
     </dependency>
     <dependency>
         <groupId>it.battlejar</groupId>
         <artifactId>battlejar-client</artifactId>
-        <version>0.2.1</version>
+        <version>0.2.2</version>
     </dependency>
     <!-- optional: only if you need Vector2 and other math utilities -->
     <dependency>
         <groupId>it.battlejar</groupId>
         <artifactId>battlejar-math</artifactId>
-        <version>0.2.1</version>
+        <version>0.2.2</version>
     </dependency>
 </dependencies>
 ```
