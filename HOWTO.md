@@ -564,6 +564,18 @@ try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
 > Pass `null` for `id` and `color` in `Player` and the server will assign
 > them automatically. See [Player](#player) for field details.
 
+### `battlejar.conf` (continuous mode)
+
+`BattleJarContinuous` reads **`battlejar.conf`** in the JVM **current working directory** when that file exists. The format is standard **Java `Properties`** (UTF-8). Values you pass in code take precedence; the file only fills **missing** fields on the `Player` you supply (or a synthetic empty player when you use the constructor that omits `Player` entirely).
+
+| Property | Meaning |
+|----------|---------|
+| `player.id` | Your `UUID` from a previous registration. If you register **without** an id and the server assigns one, the client **writes `player.id` back** into this file (creating or updating the file) so the next run reuses the same identity. |
+| `player.username` | Display name for your commander (trimmed; blank is ignored). |
+| `player.color` | Preferred `Color` enum name, case-insensitive (e.g. `RED`, `BLUE`). Invalid values are ignored with a warning. |
+
+If the file is missing or unreadable, behaviour is unchanged: you rely entirely on the `Player` (or `null`) passed to `BattleJarContinuous`. `BattleJarClient` alone does **not** load this file.
+
 ---
 
 ## 14. Quick Reference
