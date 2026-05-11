@@ -49,6 +49,12 @@ Your commander has three responsibilities:
 - **React to game phases** -- The game transitions through several states;
   your commander should only send orders during the `RUNNING` phase.
 
+**Registration note (important):** You do **not** need to call any HTTP endpoints yourself or perform any “manual registration steps”.
+Registration is handled by the client library:
+
+- Use `BattleJarClient` for a single game: call `client.register(player)` once, then `client.process()`.
+- Use `BattleJarContinuous` (often misspelled “BattlejarContinous”) for a loop: call `continuous.run()` and it will register (and re-register) automatically.
+
 ---
 
 ## 2. Project Setup
@@ -408,6 +414,10 @@ that missile type.
 
 ## 10. Registration and Game Configuration
 
+### Do I need to implement registration myself?
+
+No. If you use `BattleJarClient` or `BattleJarContinuous`, the library performs the registration request and turns the response into the callback your commander receives (`process(RegistrationResponse)`). Your only job is to provide a `Player` (or let the server auto-assign fields by passing `null`s) and then start the client (`register` + `process`, or `run`).
+
 ### RegistrationResponse
 
 After registration, you receive a `RegistrationResponse` record:
@@ -536,7 +546,7 @@ import it.battlejar.client.BattleJarClient;
 Player player = new Player(null, null, "mycommander");
 
 try (BattleJarClient client = new BattleJarClient("https://api.battlejar.it", new AttackCommander())) {
-    client.register(player);
+    client.register(player); // registration handled by the library (no extra steps)
     client.process(); // blocks until the game ends
 }
 ```
@@ -557,7 +567,7 @@ try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
         AttackCommander::new,
         executor
     );
-    continuous.run(); // blocks, re-registers after each game
+    continuous.run(); // blocks; registers and re-registers after each game (no extra steps)
 }
 ```
 
