@@ -91,7 +91,7 @@ public class WebSocketGameClient implements AutoCloseable {
             return;
         }
         closing = true;
-        running = false;
+        stop();
         try {
             if (webSocket != null) {
                 log.info("[{}] Closing WebSocket", gameId);
@@ -114,6 +114,10 @@ public class WebSocketGameClient implements AutoCloseable {
             this.webSocket = null;
             this.httpClient = null;
         }
+    }
+
+    private void stop() {
+        running = false;
     }
 
     /**
@@ -167,7 +171,9 @@ public class WebSocketGameClient implements AutoCloseable {
                         }
                     }
                     if (toProcess != null) {
-                        running = entitiesProcessor.apply(toProcess);
+                        if (!entitiesProcessor.apply(toProcess)) {
+                            stop();
+                        }
                         toProcess = null;
                     }
                 }
