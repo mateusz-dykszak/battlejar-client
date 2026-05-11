@@ -9,7 +9,7 @@ Current published version: **0.2.2** (GitHub Packages). The repository may track
 ## Project Structure
 
 - `api`: Domain models (`Entity`, orders, registration, **`GameRecord` / `Frame`**) and serializers, including **JSON Lines** replay support (`GameRecordJsonlCodec`).
-- `client`: HTTP + WebSocket client (`BattleJarClient`, `BattleJarContinuous`). After a finished game it can optionally **download server history** (ZIP) into a directory named by **`BATTLEJAR_HISTORY_DIR`**, so you can capture JSON Lines replays locally. Behaviour is unchanged if that variable is unset. Till version 1.0.0, treat the API as unstable; minor bumps may introduce breaking changes.
+- `client`: HTTP + WebSocket client (`BattleJarClient`, `BattleJarContinuous`). **Registration is handled by the library**: you call `BattleJarClient.register(player)` (single game) or `BattleJarContinuous.run()` (multi-game loop) and do not need any additional registration steps. After a finished game it can optionally **download server history** (ZIP) into a directory named by **`BATTLEJAR_HISTORY_DIR`**, so you can capture JSON Lines replays locally. Behaviour is unchanged if that variable is unset. Till version 1.0.0, treat the API as unstable; minor bumps may introduce breaking changes.
 - `math`: Math utilities. It's an almost exact copy of the [math package from the libgdx repository](https://github.com/libgdx/libgdx/tree/master/gdx/src/com/badlogic/gdx/math) (TODO: check if it can be replaced with [gdx-math](https://github.com/mini2Dx/gdx-math)). The project was originally a libgdx project.
 
 ### Replay files and testing
